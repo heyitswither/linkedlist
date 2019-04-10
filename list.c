@@ -44,12 +44,12 @@ int list_set(struct list *head, int index, void *data) {
 // insert value after head
 // return status
 int list_insert(struct list *head, void *data) {
+    struct list *new = malloc(sizeof(struct list));
+    if (new == NULL) return 0;
     if (head == NULL) return 0;
-    head->next = malloc(sizeof(struct list));
-    if (head->next == NULL)
-        return 0;
-    ((struct list *) head->next)->data = data;
-    ((struct list *) head->next)->next = NULL;
+    new->data = data;
+    new->next = head->next;
+    head->next = new;
     return 1;
 }
 
@@ -69,7 +69,12 @@ int list_remove(struct list *head, int index) {
     struct list *curr, *prev = NULL;
     if (head == NULL) return 0;
     if (index == 0) {
-        if (head->next == NULL) return 0;
+        if (head->next == NULL) {
+            // first and only element
+            head->data = NULL;
+            return 1;
+        }
+        // first element with one after, move next data into current
         head->data = ((struct list *) head->next)->data;
         head->next = ((struct list *) head->next)->next;
         return 1;
@@ -92,7 +97,7 @@ int list_clear(struct list *head) {
     int size;
     if (head == NULL) return 0;
     size = list_size(head);
-    for (int i = size - 1; i > 0; i--) {
+    for (int i = size - 1; i >= 0; i--) {
         list_remove(head, i);
     }
     return 1;
@@ -112,14 +117,13 @@ int list_index(struct list *head, void *data) {
 
 // return item at index and remove, default last item
 void *list_pop(struct list *head, int index) {
-    int i = 0;
     void *tmp;
     if (head == NULL) return NULL;
     if (index == -1) {
         index = list_size(head) - 1;
     }
     tmp = list_get(head, index);
-    list_remove(head, i);
+    list_remove(head, index);
     return tmp;
 }
 
